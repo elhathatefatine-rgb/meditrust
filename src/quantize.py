@@ -14,12 +14,15 @@ def accuracy(model, loader):
         ok += (model(x).argmax(1) == y.squeeze(1).long()).sum().item(); n += len(y)
     return ok / n
 
-def latency_ms(model, runs=50, warmup=10):
+def latency_ms(model, runs=30, reps=7, warmup=10):
     model.eval(); x = torch.randn(1, 3, 224, 224)
     for _ in range(warmup): model(x)
-    t = time.perf_counter()
-    for _ in range(runs): model(x)
-    return (time.perf_counter() - t) / runs * 1000
+    ts = []
+    for _ in range(reps):
+        t = time.perf_counter()
+        for _ in range(runs): model(x)
+        ts.append((time.perf_counter() - t) / runs * 1000)
+    return float(np.median(ts))
 
 def main(ckpt, name="vit", n=2000):
     tag = os.path.basename(ckpt).replace(".pt", "")
