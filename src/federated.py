@@ -15,12 +15,22 @@ def dirichlet_split(labels, k, alpha, rng):
             idx[i] += part.tolist()
     return idx
 
-def local_train(model, loader, epochs, lr):
+def fgsm_perturb(model, x, y, eps):
+    e = 2 * eps / 255  # eps en /255, converti pour l'espace normalisé [-1,1]
+    delta = torch.empty_like(x).uniform_(-e, e).requires_grad_(True)
+    grad, = torch.autograd.grad(F.cross_entropy(model((x + delta).clamp(-1, 1)), y), delta)
+    delta = (delta + 1.25 * e * grad.sign()).clamp(-e, e).detach()
+    return (x + delta).clamp(-1, 1)
+
+def local_train(model, loader, epochs, lr, adv_eps=0):
     model.train()
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-2)
     for _ in range(epochs):
         for x, y in loader:
-            loss = F.cross_entropy(model(x.to(dev)), y.squeeze(1).long().to(dev))
+            x, y = x.to(dev), y.squeeze(1).long().to(dev)
+            if adv_eps > 0:
+                x = torch.cat([x, fgsm_perturb(model, x, y, adv_eps)]); y = torch.cat([y, y])
+            loss = F.cross_entropy(model(x), y)
             opt.zero_grad(); loss.backward(); opt.step()
 
 def fedavg(states, sizes):
@@ -52,7 +62,7 @@ def main(a):
         states, sizes = [], []
         for p, ld in zip(parts, loaders):
             local = copy.deepcopy(glob)
-            local_train(local, ld, a.local_epochs, a.lr)
+            local_train(local, ld, a.local_epochs, a.lr, a.adv_eps)
             states.append({k: v.detach().cpu().clone() for k, v in local.state_dict().items()})
             sizes.append(len(p)); del local
         glob.load_state_dict(fedavg(states, sizes))
@@ -61,7 +71,7 @@ def main(a):
 
     res = evaluate(glob, test)
     print("TEST", res)
-    tag = f"k{a.clients}_a{a.alpha}"
+    tag = f"k{a.clients}_a{a.alpha}" + (f"_adv{a.adv_eps:g}" if a.adv_eps else "")
     torch.save(glob.state_dict(), f"checkpoints/fed_{tag}.pt")
     json.dump({"config": vars(a), "client_class_counts": counts, "rounds": log, "test": res},
               open(f"results/fed_{tag}.json", "w"), indent=2)
@@ -76,4 +86,5 @@ if __name__ == "__main__":
     p.add_argument("--n_total", type=int, default=20000)
     p.add_argument("--lr", type=float, default=1e-4)
     p.add_argument("--bs", type=int, default=64)
+    p.add_argument("--adv_eps", type=float, default=0)
     main(p.parse_args())
