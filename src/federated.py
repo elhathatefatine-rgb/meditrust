@@ -43,7 +43,7 @@ def fedavg(states, sizes):
     return avg
 
 def main(a):
-    torch.manual_seed(0); rng = np.random.default_rng(0)
+    torch.manual_seed(a.seed); rng = np.random.default_rng(a.seed)
     ds = get_datasets()
     labels = ds["train"].labels.squeeze()
     pool = rng.choice(len(labels), a.n_total, replace=False)
@@ -71,8 +71,7 @@ def main(a):
 
     res = evaluate(glob, test)
     print("TEST", res)
-    tag = f"k{a.clients}_a{a.alpha}" + (f"_adv{a.adv_eps:g}" if a.adv_eps else "")
-    torch.save(glob.state_dict(), f"checkpoints/fed_{tag}.pt")
+    tag = f"k{a.clients}_a{a.alpha}" + (f"_adv{a.adv_eps:g}" if a.adv_eps else "") + (f"_s{a.seed}" if a.seed else "")    torch.save(glob.state_dict(), f"checkpoints/fed_{tag}.pt")
     json.dump({"config": vars(a), "client_class_counts": counts, "rounds": log, "test": res},
               open(f"results/fed_{tag}.json", "w"), indent=2)
 
@@ -87,4 +86,5 @@ if __name__ == "__main__":
     p.add_argument("--lr", type=float, default=1e-4)
     p.add_argument("--bs", type=int, default=64)
     p.add_argument("--adv_eps", type=float, default=0)
+    p.add_argument("--seed", type=int, default=0)
     main(p.parse_args())
