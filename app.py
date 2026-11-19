@@ -48,7 +48,9 @@ demo = gr.Interface(
              gr.Image(label="Carte d'attention (rollout)"),
              gr.Textbox(label="Statut"), gr.Textbox(label="Temps d'inférence")],
     title="MediTrust : prototype de recherche",
-    description="Prototype sur PathMNIST (histologie colorectale). Ne constitue pas un outil de diagnostic médical.")
+    description="Prototype sur PathMNIST (histologie colorectale). Ne constitue pas un outil de diagnostic médical.",
+    flagging_mode="never",)
+
 
 if __name__ == "__main__":
     demo.launch()
