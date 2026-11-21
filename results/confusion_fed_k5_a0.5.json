@@ -1,0 +1,129 @@
+{
+  "acc": 0.9589136490250696,
+  "classes": [
+    "adipose",
+    "background",
+    "debris",
+    "lymphocytes",
+    "mucus",
+    "smooth muscle",
+    "normal colon mucosa",
+    "cancer-associated stroma",
+    "colorectal adenocarcinoma epithelium"
+  ],
+  "confusion": [
+    [
+      1335,
+      0,
+      0,
+      0,
+      1,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      847,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      336,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      3,
+      630,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      13,
+      0,
+      0,
+      0,
+      1019,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      5,
+      0,
+      0,
+      538,
+      0,
+      49,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      8,
+      2,
+      0,
+      721,
+      0,
+      10
+    ],
+    [
+      0,
+      0,
+      13,
+      0,
+      3,
+      75,
+      0,
+      330,
+      0
+    ],
+    [
+      0,
+      0,
+      42,
+      13,
+      1,
+      1,
+      41,
+      6,
+      1129
+    ]
+  ],
+  "recall_par_classe": {
+    "adipose": 0.9977578475336323,
+    "background": 1.0,
+    "debris": 0.9911504424778761,
+    "lymphocytes": 0.9936908517350158,
+    "mucus": 0.9845410628019323,
+    "smooth muscle": 0.9087837837837838,
+    "normal colon mucosa": 0.9730094466936572,
+    "cancer-associated stroma": 0.7838479809976246,
+    "colorectal adenocarcinoma epithelium": 0.9156528791565288
+  },
+  "cancer_total": 1233,
+  "cancer_predit_normal": 41,
+  "cancer_predit_normal_conf_sup_0.9": 25
+}
